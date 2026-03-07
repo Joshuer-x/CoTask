@@ -1,0 +1,39 @@
+{
+  "name": "@cotask/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cotask/db": "workspace:*",
+    "@cotask/types": "workspace:*",
+    "@fastify/cookie": "^9.3.0",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/jwt": "^8.0.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "@fastify/swagger": "^8.14.0",
+    "bcryptjs": "^2.4.3",
+    "fastify": "^4.27.0",
+    "ioredis": "^5.3.2",
+    "nodemailer": "^6.9.13",
+    "socket.io": "^4.7.5",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "redis": "^4.6.13",
+    "uuid": "^9.0.1",
+    "zod": "^3.23.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/nodemailer": "^6.4.14",
+    "@types/uuid": "^9.0.8",
+    "tsx": "^4.9.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.5.0"
+  }
+}
