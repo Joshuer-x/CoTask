@@ -4,11 +4,11 @@ import type { Task, TaskStatus } from "@cotask/types";
 import { TaskCard } from "./TaskCard";
 import { useUpdateTask } from "@/hooks/useTasks";
 
-const COLUMNS: { status: TaskStatus; label: string; dot: string; bg: string; bgDrop: string; count: string }[] = [
-  { status: "todo",        label: "To Do",       dot: "bg-gray-400",   bg: "bg-gray-50/80",    bgDrop: "bg-gray-100",     count: "bg-gray-200 text-gray-600" },
-  { status: "in_progress", label: "In Progress",  dot: "bg-blue-400",   bg: "bg-blue-50/50",    bgDrop: "bg-blue-100/60",  count: "bg-blue-100 text-blue-600" },
-  { status: "in_review",   label: "In Review",    dot: "bg-purple-400", bg: "bg-purple-50/50",  bgDrop: "bg-purple-100/60",count: "bg-purple-100 text-purple-600" },
-  { status: "done",        label: "Done",         dot: "bg-green-400",  bg: "bg-green-50/50",   bgDrop: "bg-green-100/60", count: "bg-green-100 text-green-600" },
+const COLUMNS: { status: TaskStatus; label: string }[] = [
+  { status: "todo",        label: "To Do" },
+  { status: "in_progress", label: "In Progress" },
+  { status: "in_review",   label: "In Review" },
+  { status: "done",        label: "Done" },
 ];
 
 interface TaskBoardProps {
@@ -60,18 +60,17 @@ export function TaskBoard({ workspaceId, tasks, onTaskClick }: TaskBoardProps) {
         return (
           <div
             key={col.status}
-            className={`flex-shrink-0 w-[272px] flex flex-col rounded-2xl p-3 transition-colors duration-150 ${isOver ? col.bgDrop : col.bg}`}
+            className={`flex-shrink-0 w-[280px] flex flex-col rounded-lg p-3 transition-colors duration-150 ${
+              isOver ? "bg-[#FDECEA]" : "bg-[#FAF7F5]"
+            }`}
             onDragOver={(e) => handleDragOver(e, col.status)}
             onDragLeave={() => setDragOverStatus(null)}
             onDrop={(e) => handleDrop(e, col.status)}
           >
             {/* Column header */}
             <div className="flex items-center gap-2 mb-3">
-              <span className={`w-2 h-2 rounded-full ${col.dot}`} />
-              <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide flex-1">{col.label}</h3>
-              <span className={`text-[11px] font-semibold rounded-full w-5 h-5 flex items-center justify-center ${col.count}`}>
-                {colTasks.length}
-              </span>
+              <h3 className="text-sm font-semibold text-[#202020] flex-1">{col.label}</h3>
+              <span className="text-[#999999] text-xs tabular-nums">{colTasks.length}</span>
             </div>
 
             {/* Cards */}
@@ -87,8 +86,8 @@ export function TaskBoard({ workspaceId, tasks, onTaskClick }: TaskBoardProps) {
                 />
               ))}
               {colTasks.length === 0 && (
-                <div className={`border-2 border-dashed rounded-xl p-6 text-center mt-1 transition-colors duration-150 ${isOver ? "border-current opacity-40" : "border-gray-200/80"}`}>
-                  <p className="text-xs text-gray-400">{isOver ? "Drop here" : "No tasks"}</p>
+                <div className={`border-2 border-dashed rounded-lg p-6 text-center mt-1 transition-colors duration-150 ${isOver ? "border-[#DB4035]/40" : "border-[#E0E0E0]"}`}>
+                  <p className="text-xs text-[#CCCCCC]">{isOver ? "Drop here" : "No tasks"}</p>
                 </div>
               )}
             </div>

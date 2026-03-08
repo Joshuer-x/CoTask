@@ -1,19 +1,4 @@
 import type { Task } from "@cotask/types";
-import { StatusBadge } from "@/components/ui/Badge";
-
-const PRIORITY_ACCENT: Record<number, string> = {
-  1: "border-l-red-400",
-  2: "border-l-orange-400",
-  3: "border-l-yellow-400",
-  4: "border-l-gray-200",
-};
-
-const PRIORITY_DOT: Record<number, string> = {
-  1: "bg-red-400",
-  2: "bg-orange-400",
-  3: "bg-yellow-400",
-  4: "bg-gray-300",
-};
 
 interface TaskCardProps {
   task: Task;
@@ -24,45 +9,57 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onClick, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
+  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "done";
+  const isToday = task.dueDate && new Date(task.dueDate).toDateString() === new Date().toDateString();
+
   return (
     <div
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`bg-white border border-gray-200/80 border-l-[3px] ${PRIORITY_ACCENT[task.priority] ?? "border-l-gray-200"} rounded-xl p-3.5 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-gray-300/80 transition-all duration-150 group animate-fade-in select-none ${isDragging ? "opacity-40 scale-95" : ""}`}
+      className={`bg-white border border-[#E8E8E8] rounded-lg p-3.5 cursor-grab active:cursor-grabbing transition-all duration-150 select-none animate-fade-in ${
+        isDragging ? "opacity-40 scale-95" : ""
+      }`}
+      style={{
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = "0 3px 8px rgba(0,0,0,0.10)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)"; }}
       onClick={onClick}
     >
-      <p className="text-sm font-medium text-gray-800 leading-snug group-hover:text-brand-700 transition-colors line-clamp-2 mb-2.5">
+      <p className="text-[15px] font-medium text-[#202020] leading-snug line-clamp-2 mb-2">
         {task.title}
       </p>
 
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <StatusBadge status={task.status} />
-        {task.source === "ai_meeting" && (
-          <span className="inline-flex items-center gap-0.5 text-[10px] bg-brand-50 text-brand-600 px-1.5 py-0.5 rounded-md font-semibold tracking-wide">
-            AI
-          </span>
-        )}
+      {task.description && (
+        <p className="text-[13px] text-[#666666] mt-1.5 mb-2 line-clamp-2">{task.description}</p>
+      )}
+
+      {task.source === "ai_meeting" && (
+        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium bg-[#F3EFFE] text-[#7C3AED] mb-2">
+          AI
+        </span>
+      )}
+
+      {/* Footer row */}
+      <div className="flex items-center gap-2 mt-2">
         {task.dueDate && (
-          <span className={`text-[11px] ml-auto tabular-nums ${
-            new Date(task.dueDate) < new Date() && task.status !== "done"
-              ? "text-red-500 font-medium"
-              : "text-gray-400"
+          <span className={`text-[12px] font-medium ${
+            isOverdue ? "text-[#DB4035]" : isToday ? "text-[#058527]" : "text-[#999999]"
           }`}>
             {new Date(task.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
           </span>
         )}
-      </div>
-
-      {task.assignee && (
-        <div className="mt-2.5 flex items-center gap-1.5 pt-2.5 border-t border-gray-100">
-          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-brand-300 to-brand-500 flex items-center justify-center text-[10px] font-semibold text-white shrink-0">
+        <div className="flex-1" />
+        {task.assignee && (
+          <div
+            className="w-6 h-6 rounded-full bg-[#DB4035] flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
+            title={task.assignee.displayName}
+          >
             {task.assignee.displayName[0]?.toUpperCase()}
           </div>
-          <span className="text-[11px] text-gray-500 truncate">{task.assignee.displayName}</span>
-          <span className={`ml-auto w-1.5 h-1.5 rounded-full shrink-0 ${PRIORITY_DOT[task.priority] ?? "bg-gray-300"}`} title={`P${task.priority}`} />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

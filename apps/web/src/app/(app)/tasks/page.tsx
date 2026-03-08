@@ -26,9 +26,6 @@ export default function TasksPage() {
   const { data: tasks = [], isLoading } = useTasks(workspaceId, view === "board" ? { assigneeId: userId ?? undefined } : myFilters);
   const { data: members = [] } = useWorkspaceMembers(workspaceId);
 
-  const done = tasks.filter((t: Task) => t.status === "done").length;
-  const inProgress = tasks.filter((t: Task) => t.status === "in_progress").length;
-
   return (
     <div>
       {showNewTask && <NewTaskModal workspaceId={workspaceId} onClose={() => setShowNewTask(false)} />}
@@ -43,27 +40,22 @@ export default function TasksPage() {
 
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">My Tasks</h1>
-          <div className="flex items-center gap-3 mt-1">
-            <span className="text-sm text-gray-500">{tasks.length} tasks</span>
-            {inProgress > 0 && (
-              <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{inProgress} in progress</span>
-            )}
-            {done > 0 && (
-              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{done} done</span>
-            )}
-          </div>
+        <div className="page-header mb-0">
+          <h1 className="page-title">My Tasks</h1>
+          <p className="page-subtitle">{tasks.length} tasks</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm">
+        <div className="flex items-center gap-2 mt-1">
+          {/* View toggle */}
+          <div className="flex items-center gap-1 bg-white border border-[#E0E0E0] rounded-full px-1 py-1">
             {(["board", "list"] as const).map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
-                className={`px-3 py-1.5 text-xs font-semibold transition-colors capitalize ${
-                  view === v ? "bg-brand-600 text-white" : "text-gray-500 hover:bg-gray-50"
+                className={`rounded-full px-3 py-1 text-sm transition-colors capitalize ${
+                  view === v
+                    ? "bg-[#202020] text-white font-medium"
+                    : "text-[#444444] hover:bg-[#EEEEEE]"
                 }`}
               >
                 {v}
@@ -81,7 +73,7 @@ export default function TasksPage() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-24">
-          <div className="flex items-center gap-2.5 text-gray-400 text-sm">
+          <div className="flex items-center gap-2.5 text-[#999999] text-sm">
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />

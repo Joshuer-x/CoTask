@@ -1,7 +1,7 @@
 "use client";
 import type { Task, TaskStatus, TaskPriority } from "@cotask/types";
 import type { WorkspaceMember } from "@cotask/types";
-import { StatusBadge, PriorityBadge } from "@/components/ui/Badge";
+import { StatusBadge } from "@/components/ui/Badge";
 import type { TaskFilters } from "@/hooks/useTasks";
 
 interface TaskListViewProps {
@@ -36,14 +36,18 @@ const SORT_OPTIONS = [
   { value: "priority",   label: "Priority" },
 ] as const;
 
-const PRIORITY_BORDER: Record<number, string> = {
-  1: "border-l-red-400",
-  2: "border-l-orange-400",
-  3: "border-l-yellow-400",
-  4: "border-l-gray-200",
+const PRIORITY_BADGE: Record<number, string> = {
+  1: "bg-[#FEE2E2] text-red-700",
+  2: "bg-[#FEF3C7] text-amber-700",
+  3: "bg-[#EDE9FE] text-purple-700",
+  4: "bg-[#F5F5F5] text-[#666666]",
 };
 
-const AVATAR_COLORS = ["from-pink-400 to-rose-500","from-orange-400 to-amber-500","from-green-400 to-emerald-500","from-blue-400 to-indigo-500","from-purple-400 to-violet-500"];
+const PRIORITY_LABEL: Record<number, string> = {
+  1: "P1", 2: "P2", 3: "P3", 4: "P4",
+};
+
+const AVATAR_COLORS = ["bg-[#DB4035]","bg-blue-500","bg-green-500","bg-purple-500","bg-orange-500"];
 
 export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskClick }: TaskListViewProps) {
   const memberMap = Object.fromEntries(members.map((m, i) => [m.userId, { name: m.user.displayName, colorIdx: i }]));
@@ -52,6 +56,8 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
     onFiltersChange({ ...filters, ...patch });
   }
 
+  const pillSelectClass = "rounded-full border border-[#E0E0E0] bg-white text-xs px-3 py-1 text-[#444444] outline-none transition-colors hover:border-[#AAAAAA] cursor-pointer";
+
   return (
     <div>
       {/* Filter bar */}
@@ -59,7 +65,7 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
         <select
           value={filters.status ?? ""}
           onChange={(e) => set({ status: e.target.value as TaskStatus || undefined })}
-          className="input py-1.5 text-xs w-auto"
+          className={pillSelectClass}
         >
           {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
@@ -67,7 +73,7 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
         <select
           value={filters.priority ?? 0}
           onChange={(e) => set({ priority: Number(e.target.value) || undefined })}
-          className="input py-1.5 text-xs w-auto"
+          className={pillSelectClass}
         >
           {PRIORITY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
@@ -75,7 +81,7 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
         <select
           value={filters.assigneeId ?? ""}
           onChange={(e) => set({ assigneeId: e.target.value || undefined })}
-          className="input py-1.5 text-xs w-auto"
+          className={pillSelectClass}
         >
           <option value="">All assignees</option>
           {members.map((m) => <option key={m.userId} value={m.userId}>{m.user.displayName}</option>)}
@@ -85,13 +91,13 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
           <select
             value={filters.sortBy ?? "created_at"}
             onChange={(e) => set({ sortBy: e.target.value as TaskFilters["sortBy"] })}
-            className="input py-1.5 text-xs w-auto"
+            className={pillSelectClass}
           >
             {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
           <button
             onClick={() => set({ sortDir: filters.sortDir === "asc" ? "desc" : "asc" })}
-            className="btn-secondary px-2.5 py-1.5 text-xs"
+            className="rounded-full border border-[#E0E0E0] bg-white p-1.5 text-[#444444] hover:border-[#AAAAAA] transition-colors"
             title={filters.sortDir === "asc" ? "Ascending" : "Descending"}
           >
             {filters.sortDir === "asc" ? (
@@ -106,19 +112,19 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
           </button>
         </div>
 
-        <span className="text-xs text-gray-400 ml-2">{tasks.length} tasks</span>
+        <span className="text-xs text-[#999999] ml-2">{tasks.length} tasks</span>
       </div>
 
       {/* Table */}
       {tasks.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-[#999999]">
           <p className="text-sm">No tasks match your filters.</p>
         </div>
       ) : (
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-[11px] text-gray-400 font-semibold uppercase tracking-wide">
+              <tr className="border-b border-[#F0F0F0] text-[11px] text-[#999999] font-semibold uppercase tracking-wide">
                 <th className="px-4 py-2.5 text-left">Title</th>
                 <th className="px-4 py-2.5 text-left hidden md:table-cell">Assignee</th>
                 <th className="px-4 py-2.5 text-left">Priority</th>
@@ -126,48 +132,52 @@ export function TaskListView({ tasks, members, filters, onFiltersChange, onTaskC
                 <th className="px-4 py-2.5 text-left hidden lg:table-cell">Due</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[#F0F0F0]">
               {tasks.map((task) => {
                 const member = task.assigneeId ? memberMap[task.assigneeId] : null;
                 return (
                   <tr
                     key={task.id}
+                    tabIndex={0}
                     onClick={() => onTaskClick(task)}
-                    className={`border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors border-l-2 ${PRIORITY_BORDER[task.priority] ?? "border-l-transparent"}`}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onTaskClick(task); }}
+                    className="cursor-pointer hover:bg-[#F9F9F9] transition-colors duration-100 focus:outline-none focus:bg-[#F9F9F9]"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-medium text-gray-800 truncate">{task.title}</span>
+                        <span className="text-[#202020] truncate">{task.title}</span>
                         {task.source === "ai_meeting" && (
-                          <span className="shrink-0 text-[10px] bg-brand-50 text-brand-600 px-1.5 py-0.5 rounded font-medium">AI</span>
+                          <span className="shrink-0 badge bg-[#F3EFFE] text-[#7C3AED]">AI</span>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       {member ? (
                         <div className="flex items-center gap-1.5">
-                          <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${AVATAR_COLORS[member.colorIdx % AVATAR_COLORS.length]} flex items-center justify-center text-[10px] font-bold text-white`}>
+                          <div className={`w-5 h-5 rounded-full ${AVATAR_COLORS[member.colorIdx % AVATAR_COLORS.length]} flex items-center justify-center text-[10px] font-bold text-white`}>
                             {member.name[0]?.toUpperCase()}
                           </div>
-                          <span className="text-xs text-gray-600 truncate max-w-[100px]">{member.name}</span>
+                          <span className="text-xs text-[#666666] truncate max-w-[100px]">{member.name}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs text-[#CCCCCC]">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <PriorityBadge priority={task.priority} />
+                      <span className={`badge ${PRIORITY_BADGE[task.priority] ?? "bg-[#F5F5F5] text-[#666666]"}`}>
+                        {PRIORITY_LABEL[task.priority] ?? `P${task.priority}`}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={task.status} />
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       {task.dueDate ? (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-[#666666]">
                           {new Date(task.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                         </span>
                       ) : (
-                        <span className="text-xs text-gray-300">—</span>
+                        <span className="text-xs text-[#CCCCCC]">—</span>
                       )}
                     </td>
                   </tr>
