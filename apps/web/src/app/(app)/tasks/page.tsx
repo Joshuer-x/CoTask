@@ -90,7 +90,7 @@ export default function TasksPage() {
           </div>
         </div>
       ) : view === "board" ? (
-        <TaskBoard tasks={tasks} onTaskClick={(t) => setSelectedTaskId(t.id)} />
+        <TaskBoard workspaceId={workspaceId} tasks={tasks} onTaskClick={(t) => setSelectedTaskId(t.id)} />
       ) : (
         <TaskListView
           tasks={tasks}

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { setAccessToken, clearAccessToken } from "@/lib/api";
 
 interface AuthState {
@@ -18,25 +19,35 @@ function parseJwt(token: string) {
   }
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
-  workspaceId: null,
-  userId: null,
-  role: null,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      accessToken: null,
+      workspaceId: null,
+      userId: null,
+      role: null,
 
-  setTokens(accessToken) {
-    const payload = parseJwt(accessToken);
-    setAccessToken(accessToken);
-    set({
-      accessToken,
-      workspaceId: payload?.wid ?? null,
-      userId: payload?.sub ?? null,
-      role: payload?.role ?? null,
-    });
-  },
+      setTokens(accessToken) {
+        const payload = parseJwt(accessToken);
+        setAccessToken(accessToken);
+        set({
+          accessToken,
+          workspaceId: payload?.wid ?? null,
+          userId: payload?.sub ?? null,
+          role: payload?.role ?? null,
+        });
+      },
 
-  logout() {
-    clearAccessToken();
-    set({ accessToken: null, workspaceId: null, userId: null, role: null });
-  },
-}));
+      logout() {
+        clearAccessToken();
+        set({ accessToken: null, workspaceId: null, userId: null, role: null });
+      },
+    }),
+    {
+      name: "cotask-auth",
+      onRehydrateStorage: () => (state) => {
+        if (state?.accessToken) setAccessToken(state.accessToken);
+      },
+    },
+  ),
+);

@@ -18,12 +18,18 @@ const PRIORITY_DOT: Record<number, string> = {
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: () => void;
+  isDragging?: boolean;
 }
 
-export function TaskCard({ task, onClick }: TaskCardProps) {
+export function TaskCard({ task, onClick, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
   return (
     <div
-      className={`bg-white border border-gray-200/80 border-l-[3px] ${PRIORITY_ACCENT[task.priority] ?? "border-l-gray-200"} rounded-xl p-3.5 cursor-pointer hover:shadow-md hover:border-gray-300/80 transition-all duration-150 group animate-fade-in`}
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className={`bg-white border border-gray-200/80 border-l-[3px] ${PRIORITY_ACCENT[task.priority] ?? "border-l-gray-200"} rounded-xl p-3.5 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-gray-300/80 transition-all duration-150 group animate-fade-in select-none ${isDragging ? "opacity-40 scale-95" : ""}`}
       onClick={onClick}
     >
       <p className="text-sm font-medium text-gray-800 leading-snug group-hover:text-brand-700 transition-colors line-clamp-2 mb-2.5">
